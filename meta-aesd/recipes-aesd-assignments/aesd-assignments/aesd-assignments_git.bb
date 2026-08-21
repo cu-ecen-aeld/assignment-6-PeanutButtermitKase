@@ -9,24 +9,30 @@ SRCREV = "f1c9cd9e4cd4af4c28359c1f5508b4c6161a67ec"
 
 S = "${WORKDIR}/git/server"
 
-FILES:${PN} += "${bindir}/aesdsocket"
-FILES:${PN} += "${sysconfdir}/init.d/S99aesdsocket"
+inherit update-rc.d
 
-TARGET_LDFLAGS += "-pthread"
+INITSCRIPT_NAME = "aesdsocket"
+INITSCRIPT_PARAMS = "defaults 99"
+
+FILES:${PN} += "${bindir}/aesdsocket"
+FILES:${PN} += "${sysconfdir}/init.d/aesdsocket"
 
 do_configure () {
     :
 }
 
 do_compile () {
-    oe_runmake
+    oe_runmake \
+        CC="${CC}" \
+        CFLAGS="${CFLAGS} ${LDFLAGS} -pthread"
 }
 
 do_install () {
     install -d ${D}${bindir}
-    install -m 0755 ${S}/aesdsocket ${D}${bindir}/aesdsocket
+    install -m 0755 ${S}/aesdsocket \
+        ${D}${bindir}/aesdsocket
 
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${S}/aesdsocket-start-stop \
-        ${D}${sysconfdir}/init.d/S99aesdsocket
+        ${D}${sysconfdir}/init.d/aesdsocket
 }
